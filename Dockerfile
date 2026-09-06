@@ -1,15 +1,12 @@
+FROM node:20-bullseye AS node-source
+
 FROM debian:bullseye
 
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates curl gnupg \
-  && mkdir -p /etc/apt/keyrings \
-  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
-  && apt-get update \
-  && apt-get install -y --no-install-recommends nodejs \
-  && rm -rf /var/lib/apt/lists/* \
-  && node -v && npm -v
+# Copy pre-built Node.js 20 and npm from official Debian-based Node image
+COPY --from=node-source /usr/local/bin /usr/local/bin
+COPY --from=node-source /usr/local/lib /usr/local/lib
+COPY --from=node-source /usr/local/include /usr/local/include
+COPY --from=node-source /usr/local/share /usr/local/share
 
 WORKDIR /app
 
