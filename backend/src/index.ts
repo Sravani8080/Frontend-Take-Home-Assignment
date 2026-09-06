@@ -1,14 +1,18 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { createApp } from "./app.js";
 import { FileMapRepository } from "./store.js";
 import { parseMapDocument } from "./schema.js";
 
 /* Resolve paths relative to the project root.
- * When running via `tsx` in dev, `__dirname` points at `backend/src`.
- * When running the CJS bundle (`node backend/dist/index.cjs`), `__dirname`
- * points at `backend/dist`. Both are two levels below the project root. */
-const repoRoot = path.resolve(__dirname, "../..");
+ * In ESM (dev via tsx): derive from import.meta.url.
+ * In CJS (production bundle via esbuild --format=cjs): __dirname exists. */
+const currentDir =
+  typeof __dirname !== "undefined"
+    ? __dirname
+    : path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(currentDir, "../..");
 const dataDir = path.join(repoRoot, "data", "maps");
 const examplePath = path.join(repoRoot, "data", "example-map.json");
 const frontendDist = path.join(repoRoot, "frontend", "dist");
